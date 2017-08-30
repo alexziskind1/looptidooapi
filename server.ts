@@ -70,20 +70,22 @@ router.post('/auth', (req: Request, res: Response) => {
 });
 
 router.get('/users', (req: Request, res: Response) => {
-    let currentPage = 1;
-    if (req.query && req.query.page) {
-        currentPage = +req.query.page
-    }
+    res.json(currentPtUsers);
+    //let currentPage = 1;
+    //if (req.query && req.query.page) {
+    //    currentPage = +req.query.page
+    //}
 
-    const pagedData = paginateArray(currentPtUsers, usersPerPage, currentPage);
-
-    res.json({
-        currentPage: currentPage,
-        pageSize: usersPerPage,
-        totalItemCount: currentPtUsers.length,
-        pageCount: Math.ceil(currentPtUsers.length / usersPerPage),
-        data: pagedData
-    });
+    //const pagedData = paginateArray(currentPtUsers, usersPerPage, currentPage);
+    /*
+        res.json({
+            currentPage: currentPage,
+            pageSize: usersPerPage,
+            totalItemCount: currentPtUsers.length,
+            pageCount: Math.ceil(currentPtUsers.length / usersPerPage),
+            data: pagedData
+        });
+        */
 });
 
 
@@ -92,9 +94,9 @@ router.get('/backlog', (req: Request, res: Response) => {
 });
 
 router.get('/myItems', (req: Request, res: Response) => {
-    let userId;
+    let userId: number;
     if (req.query && req.query.userId) {
-        userId = req.query.userId
+        userId = parseInt(req.query.userId);
     }
     let found = false;
 

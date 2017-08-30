@@ -1,11 +1,5 @@
 import * as enums from './domain-enums';
 
-export enum Gender {
-    Male = "Male",
-    Female = "Female",
-    Unspecified = "Unspecified",
-}
-
 export interface PtLoginModel {
     username: string;
     password: string;
@@ -19,10 +13,15 @@ export interface PtObjectBase {
     dateDeleted?: Date;
 }
 
+export interface PtAuthToken {
+    access_token: string;
+    dateExpires: Date;
+}
+
 export interface PtUser extends PtObjectBase {
     fullName: string;
     avatar: string;
-    gender: Gender;
+    gender: enums.GenderEnum;
 }
 
 export interface PtItem extends PtObjectBase {
@@ -51,7 +50,7 @@ export interface PtNewTask {
 
 export interface PtNewComment {
     title: string;
-    userId: string;
+    userId: number;
 }
 
 export interface PtNewItem {

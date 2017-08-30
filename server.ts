@@ -4,6 +4,8 @@ import * as http from 'http';
 import { Express, Router, Request, Response } from "express";
 
 import * as mockgen from './app/data/mock-data-generator';
+import { PtAuthToken } from "./app/shared/models/domain-models";
+import { newGuid } from "./app/util/guid";
 
 const usersPerPage = 20;
 
@@ -17,6 +19,8 @@ function paginateArray(array, pageSize, pageNumber) {
     --pageNumber; // because pages logically start with 1, but technically with 0
     return array.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
 }
+
+const demo_password = 'nuvious';
 
 /*
 const sslOptions = {
@@ -42,7 +46,27 @@ const router: Router = express.Router();
 
 
 router.get('/', (req: Request, res: Response) => {
-    res.json({ message: 'hooray! welcome to our api!' });
+    res.json({ message: 'hooray! welcome to our api!!' });
+});
+
+router.post('/auth', (req: Request, res: Response) => {
+    if (req.body) {
+        if (req.body.password === demo_password) {
+            const now = new Date();
+            const expireDate = new Date(now.setFullYear(now.getFullYear() + 1));
+            const authToken: PtAuthToken = { dateExpires: expireDate, access_token: newGuid() };
+            res.json({
+                user: currentPtUsers[0],
+                authToken: authToken
+            });
+        } else {
+            res.status(401);
+            res.json(null);
+        }
+    } else {
+        res.status(401);
+        res.json(null);
+    }
 });
 
 router.get('/users', (req: Request, res: Response) => {

@@ -9,8 +9,8 @@ import * as _ from 'lodash';
 
 //app imports
 import { toTitleCase } from "../util/string-utils";
-import { PtItem, PtUser, PtTask, PtComment, Gender } from '../shared/models/domain-models';
-import { PriorityEnum, ItemTypeEnum, StatusEnum } from '../shared/models/domain-enums';
+import { PtItem, PtUser, PtTask, PtComment } from '../shared/models/domain-models';
+import { PriorityEnum, ItemTypeEnum, StatusEnum, GenderEnum } from '../shared/models/domain-enums';
 
 
 const NUM_PT_ITEMS = 50;
@@ -82,7 +82,7 @@ export function generateUsersBase64Avatars(): Array<PtUser> {
     let users = _.times(NUM_USERS, (index: number) => {
         return generateUserBase64Avatar(index, avatarsMenBase64, avatarsWomenBase64);
     });
-    let userMe = getMeUser(users.length);
+    let userMe = getMeUserBase64(users.length);
     users.unshift(userMe);
     return users;
 }
@@ -92,18 +92,32 @@ export function generateUsers(): Array<PtUser> {
         return generateUser(index);
     });
 
+    let userMe = getMeUser(users.length);
+    users.unshift(userMe);
     return users;
 }
 
-export function getMeUser(index: number): PtUser {
+export function getMeUserBase64(index: number): PtUser {
     let avatarMe = getUserAvatars('app/images/avatars/base64/me.txt')[0];
     let date = faker.date.past(1);
-
     let userMe: PtUser = {
         id: index + 1,
         fullName: 'Alex Ziskind',
         avatar: avatarMe,
-        gender: Gender.Male,
+        gender: GenderEnum.Male,
+        dateCreated: date,
+        dateModified: date
+    };
+    return userMe;
+}
+
+export function getMeUser(index: number): PtUser {
+    let date = faker.date.past(1);
+    let userMe: PtUser = {
+        id: index + 1,
+        fullName: 'Alex Ziskind',
+        avatar: 'app/images/avatars/me/me.png',
+        gender: GenderEnum.Male,
         dateCreated: date,
         dateModified: date
     };
@@ -126,7 +140,7 @@ export function generateUserBase64Avatar(index: number, avatarsMen: string[], av
         id: index + 1,
         fullName: firstName + ' ' + lastName,
         avatar: avatar,
-        gender: genderBool ? Gender.Male : Gender.Female,
+        gender: genderBool ? GenderEnum.Male : GenderEnum.Female,
         dateCreated: date,
         dateModified: date
     };
@@ -145,7 +159,7 @@ export function generateUser(index: number): PtUser {
         id: index + 1,
         fullName: firstName + ' ' + lastName,
         avatar: avatar,
-        gender: genderBool ? Gender.Male : Gender.Female,
+        gender: genderBool ? GenderEnum.Male : GenderEnum.Female,
         dateCreated: date,
         dateModified: date
     };

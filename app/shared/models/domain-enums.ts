@@ -1,3 +1,9 @@
+export enum GenderEnum {
+    Male = "Male",
+    Female = "Female",
+    Unspecified = "Unspecified",
+}
+
 export enum ItemTypeEnum {
     PBI = 1,
     Bug = 2,

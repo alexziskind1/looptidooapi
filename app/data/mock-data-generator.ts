@@ -124,7 +124,7 @@ export function getMeUser(index: number): PtUser {
     return userMe;
 }
 
-export function generateUserBase64Avatar(index: number, avatarsMen: string[], avatarsWomen?: string[]): PtUser {
+export function generateUserBase64Avatar(index: number, avatarsMen: string[], avatarsWomen: string[] = []): PtUser {
     let genderBool = faker.random.boolean();
     let firstName = faker.name.firstName(genderBool ? 1 : 0);
     let lastName = faker.name.lastName(genderBool ? 1 : 0);

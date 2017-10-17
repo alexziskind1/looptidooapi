@@ -7,6 +7,8 @@ import * as mockgen from './app/data/mock-data-generator';
 import { PtAuthToken } from "./app/shared/models/domain-models";
 import { newGuid } from "./app/util/guid";
 
+const port = 8080;
+
 const usersPerPage = 20;
 
 const generatedPtUsers = mockgen.generateUsers();
@@ -38,6 +40,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(express.static(__dirname + '/app'));
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 
 // ROUTES FOR OUR API
@@ -195,5 +203,9 @@ app.use('/api', router);
 const httpServer = http.createServer(app);
 //const httpsServer = https.createServer(sslOptions, app);
 
-httpServer.listen(8080);
+httpServer.listen(port, (err) => {
+    if (err) {
+        console.error(err);
+    }
+});
 //httpsServer.listen(8443);

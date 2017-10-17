@@ -4,6 +4,7 @@
         "target": "es5",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "checkJs": false,
         "noEmitHelpers": true,
         "noEmitOnError": true,
         "skipLibCheck": true, //Remove omce type issue in lodash is fixed

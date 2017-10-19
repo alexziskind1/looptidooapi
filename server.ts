@@ -163,6 +163,32 @@ router.post('/item', (req: Request, res: Response) => {
     }
 });
 
+router.put('/item/:id', (req: Request, res: Response) => {
+    const itemId = parseInt(req.params.id);
+
+    if (req.body) {
+        if (req.body.item) {
+            let found = false;
+            const modifiedItem = <PtItem>req.body.item;
+
+            const foundItem = currentPtItems.find(i => i.id === itemId && i.dateDeleted === undefined);
+
+            if (foundItem) {
+                found = true;
+                const updatedItems = currentPtItems.map(i => {
+                    if (i.id === itemId) { return modifiedItem; } else { return i; }
+                });
+
+                currentPtItems = updatedItems;
+            }
+            if (!found) {
+                res.status(404);
+            }
+            res.json(modifiedItem);
+        }
+    }
+});
+
 router.post('/task', (req: Request, res: Response) => {
     if (req.body) {
         if (req.body.task && req.body.itemId) {
@@ -181,19 +207,6 @@ router.post('/task', (req: Request, res: Response) => {
             const updatedItems = currentPtItems.map(i => {
                 if (i.id === itemId) { return updatedItem; } else { return i; }
             });
-
-            /*
-            const newItems = currentPtItems.map(i => {
-                if (i.id === itemId) {
-                    const newTaskId = i.tasks.length > 0 ? (Math.max(...(i.tasks.map(t => t.id)))) + 1 : 1;
-                    newTask.id = newTaskId;
-                    i.tasks = [newTask, ...i.tasks];
-                    return i;
-                } else {
-                    return i;
-                }
-            }); 
-            */
 
             currentPtItems = updatedItems;
 

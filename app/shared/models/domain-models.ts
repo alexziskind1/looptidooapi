@@ -5,6 +5,12 @@ export interface PtLoginModel {
     password: string;
 }
 
+export interface PtRegisterModel {
+    username: string;
+    password: string;
+    fullName: string;
+}
+
 export interface PtObjectBase {
     id: number;
     title?: string;
@@ -18,10 +24,16 @@ export interface PtAuthToken {
     dateExpires: Date;
 }
 
+export interface PtUserAuthInfo {
+    email: string;
+    password: string;
+}
+
 export interface PtUser extends PtObjectBase {
     fullName: string;
     avatar: string;
     gender: enums.GenderEnum;
+    authInfo?: PtUserAuthInfo;
 }
 
 export interface PtItem extends PtObjectBase {

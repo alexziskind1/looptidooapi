@@ -4,7 +4,7 @@ import * as http from 'http';
 import { Express, Router, Request, Response } from "express";
 
 import * as mockgen from './app/data/mock-data-generator';
-import { PtAuthToken, PtItem, PtTask } from "./app/shared/models/domain-models";
+import { PtAuthToken, PtItem, PtTask, PtComment, PtRegisterModel, PtUser, PtLoginModel } from "./app/shared/models/domain-models";
 import { newGuid } from "./app/util/guid";
 
 const port = 8080;
@@ -22,7 +22,10 @@ function paginateArray(array, pageSize, pageNumber) {
     return array.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
 }
 
-const demo_password = 'nuvious';
+function getNextIntergerId(arrayWithIdProp: Array<any>) {
+    const newId = arrayWithIdProp.length > 0 ? (Math.max(...arrayWithIdProp.map(i => i.id))) + 1 : 1;
+    return newId;
+}
 
 /*
 const sslOptions = {
@@ -60,14 +63,26 @@ router.get('/', (req: Request, res: Response) => {
 
 router.post('/auth', (req: Request, res: Response) => {
     if (req.body) {
-        if (req.body.password === demo_password) {
-            const now = new Date();
-            const expireDate = new Date(now.setFullYear(now.getFullYear() + 1));
-            const authToken: PtAuthToken = { dateExpires: expireDate, access_token: newGuid() };
-            res.json({
-                user: currentPtUsers[0],
-                authToken: authToken
-            });
+        if (req.body.loginModel) {
+
+            const loginModel = <PtLoginModel>req.body.loginModel;
+
+            const foundUser = currentPtUsers.find(u => u.authInfo.email === loginModel.username && u.authInfo.password === loginModel.password);
+
+            if (foundUser) {
+                const now = new Date();
+                const expireDate = new Date(now.setFullYear(now.getFullYear() + 1));
+                const authToken: PtAuthToken = { dateExpires: expireDate, access_token: newGuid() };
+                res.json({
+                    user: foundUser,
+                    authToken: authToken
+                });
+            } else {
+                res.status(401);
+                res.json(null);
+            }
+
+
         } else {
             res.status(401);
             res.json(null);
@@ -75,6 +90,46 @@ router.post('/auth', (req: Request, res: Response) => {
     } else {
         res.status(401);
         res.json(null);
+    }
+});
+
+router.post('/register', (req: Request, res: Response) => {
+    if (req.body) {
+        if (req.body.registerModel) {
+            const now = new Date();
+            const expireDate = new Date(now.setFullYear(now.getFullYear() + 1));
+            const authToken: PtAuthToken = { dateExpires: expireDate, access_token: newGuid() };
+
+            const regModel = <PtRegisterModel>req.body.registerModel;
+
+            const usernameExists = !!currentPtUsers.find(u => u.authInfo.email === regModel.username);
+
+            if (usernameExists) {
+                res.status(500);
+                res.json('User exists');
+            } else {
+                const nextUserId = getNextIntergerId(currentPtUsers);
+
+                const newUser = <PtUser>{
+                    id: nextUserId,
+                    fullName: regModel.fullName,
+                    authInfo: { email: regModel.username, password: regModel.password }
+                };
+
+                currentPtUsers = [...currentPtUsers, newUser];
+
+                res.json({
+                    user: newUser,
+                    authToken: authToken
+                });
+            }
+        } else {
+            res.status(500);
+            res.json('Registration failed');
+        }
+    } else {
+        res.status(500);
+        res.json('Bad request');
     }
 });
 
@@ -152,8 +207,7 @@ router.post('/item', (req: Request, res: Response) => {
     if (req.body) {
         if (req.body.item) {
             const newItem = <PtItem>req.body.item;
-            const newItemId = currentPtItems.length > 0 ? (Math.max(...currentPtItems.map(i => i.id))) + 1 : 1;
-            newItem.id = newItemId;
+            newItem.id = getNextIntergerId(currentPtItems);
             const newItems = [...currentPtItems, newItem];
             currentPtItems = newItems;
             res.json(newItem);
@@ -198,7 +252,7 @@ router.post('/task', (req: Request, res: Response) => {
 
             const foundItem = currentPtItems.find(i => i.id === itemId && i.dateDeleted === undefined);
 
-            newTask.id = foundItem.tasks.length > 0 ? (Math.max(...(foundItem.tasks.map(t => t.id)))) + 1 : 1;
+            newTask.id = getNextIntergerId(foundItem.tasks);
 
             const updatedTasks = [newTask, ...foundItem.tasks];
 
@@ -250,6 +304,34 @@ router.put('/task/:id', (req: Request, res: Response) => {
                 id: taskId,
                 result: modifiedTask
             });
+        }
+    }
+});
+
+router.post('/comment', (req: Request, res: Response) => {
+    if (req.body) {
+        if (req.body.comment && req.body.itemId) {
+
+            const newComment = <PtComment>req.body.comment;
+            const itemId = parseInt(req.body.itemId);
+
+            const foundItem = currentPtItems.find(i => i.id === itemId && i.dateDeleted === undefined);
+
+            newComment.id = getNextIntergerId(foundItem.comments);
+
+            const updatedComments = [newComment, ...foundItem.comments];
+
+            const updatedItem = Object.assign({}, foundItem, { comments: updatedComments });
+
+            const updatedItems = currentPtItems.map(i => {
+                if (i.id === itemId) { return updatedItem; } else { return i; }
+            });
+
+            currentPtItems = updatedItems;
+
+            res.json(newComment);
+        } else {
+            res.json(null);
         }
     }
 });

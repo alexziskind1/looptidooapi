@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 
 //app imports
 import { toTitleCase } from "../util/string-utils";
-import { PtItem, PtUser, PtTask, PtComment } from '../shared/models/domain-models';
+import { PtItem, PtUser, PtTask, PtComment, PtUserAuthInfo } from '../shared/models/domain-models';
 import { PriorityEnum, ItemTypeEnum, StatusEnum, GenderEnum } from '../shared/models/domain-enums';
 
 
@@ -119,7 +119,8 @@ export function getMeUser(index: number): PtUser {
         avatar: 'app/images/avatars/me/me.png',
         gender: GenderEnum.Male,
         dateCreated: date,
-        dateModified: date
+        dateModified: date,
+        authInfo: { email: 'alex@email.com', password: 'nuvious' }
     };
     return userMe;
 }
@@ -148,20 +149,26 @@ export function generateUserBase64Avatar(index: number, avatarsMen: string[], av
 }
 
 export function generateUser(index: number): PtUser {
-    let genderBool = faker.random.boolean();
-    let firstName = faker.name.firstName(genderBool ? 1 : 0);
-    let lastName = faker.name.lastName(genderBool ? 1 : 0);
-    let date = faker.date.past(1);
+    const genderBool = faker.random.boolean();
+    const firstName = faker.name.firstName(genderBool ? 1 : 0);
+    const lastName = faker.name.lastName(genderBool ? 1 : 0);
+    const date = faker.date.past(1);
 
     const avatar = `app/images/avatars/${genderBool ? 'males' : 'females'}/image-${index + 1}.png`;
 
-    let user: PtUser = {
+    const authInfo: PtUserAuthInfo = {
+        email: `${firstName}.${lastName}@${faker.internet.domainName}`,
+        password: 'nuvious',
+    };
+
+    const user: PtUser = {
         id: index + 1,
         fullName: firstName + ' ' + lastName,
         avatar: avatar,
         gender: genderBool ? GenderEnum.Male : GenderEnum.Female,
         dateCreated: date,
-        dateModified: date
+        dateModified: date,
+        authInfo: authInfo
     };
     return user;
 }

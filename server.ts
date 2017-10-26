@@ -4,7 +4,9 @@ import * as http from 'http';
 import { Express, Router, Request, Response } from "express";
 
 import * as mockgen from './app/data/mock-data-generator';
-import { PtAuthToken, PtItem, PtTask, PtComment, PtRegisterModel, PtUser, PtLoginModel } from "./app/shared/models/domain-models";
+import { PtUserWithAuth } from './app/shared/models';
+import { PtItemStatusType } from './app/shared/models/domain/types';
+import { PtAuthToken, PtItem, PtTask, PtComment, PtRegisterModel, PtUser, PtLoginModel } from "./app/shared/models/domain";
 import { newGuid } from "./app/util/guid";
 
 const port = 8080;
@@ -110,7 +112,7 @@ router.post('/register', (req: Request, res: Response) => {
             } else {
                 const nextUserId = getNextIntergerId(currentPtUsers);
 
-                const newUser = <PtUser>{
+                const newUser = <PtUserWithAuth>{
                     id: nextUserId,
                     fullName: regModel.fullName,
                     authInfo: { email: regModel.username, password: regModel.password }
@@ -177,12 +179,12 @@ router.get('/myItems', (req: Request, res: Response) => {
 });
 
 router.get('/openItems', (req: Request, res: Response) => {
-    let filteredItems = currentPtItems.filter(i => i.status === 2 /*open*/ || i.status === 4 /*reopened*/);
+    let filteredItems = currentPtItems.filter(i => i.status === 'Open' || i.status === 'ReOpened');
     res.json(filteredItems);
 });
 
 router.get('/closedItems', (req: Request, res: Response) => {
-    let filteredItems = currentPtItems.filter(i => i.status === 3 /*closed*/);
+    let filteredItems = currentPtItems.filter(i => i.status === 'Closed');
     res.json(filteredItems);
 });
 

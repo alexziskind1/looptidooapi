@@ -1,8 +1,9 @@
-export enum GenderEnum {
+/*export enum GenderEnum {
     Male = "Male",
     Female = "Female",
     Unspecified = "Unspecified",
 }
+
 
 export enum ItemTypeEnum {
     PBI = 1,
@@ -40,6 +41,7 @@ export namespace ItemTypeEnum {
         }
     }
 }
+
 
 export enum PriorityEnum {
     Low = 1,
@@ -100,3 +102,4 @@ export enum StatusEnum {
     Closed = 3,
     ReOpened = 4
 }
+*/

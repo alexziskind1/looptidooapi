@@ -1,4 +1,4 @@
-import * as enums from './domain-enums';
+/*import * as enums from './domain-enums';
 
 export interface PtLoginModel {
     username: string;
@@ -71,3 +71,5 @@ export interface PtNewItem {
     type: enums.ItemTypeEnum;
 }
 
+
+*/

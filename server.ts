@@ -170,7 +170,7 @@ router.get('/myItems', (req: Request, res: Response) => {
         found = true;
     }
 
-    let filteredItems = currentPtItems.filter(i => i.assignee.id === userId);
+    let filteredItems = currentPtItems.filter(i => i.assignee.id === userId && i.dateDeleted === undefined);
 
     if (!found) {
         res.status(404);
@@ -179,12 +179,12 @@ router.get('/myItems', (req: Request, res: Response) => {
 });
 
 router.get('/openItems', (req: Request, res: Response) => {
-    let filteredItems = currentPtItems.filter(i => i.status === 'Open' || i.status === 'ReOpened');
+    let filteredItems = currentPtItems.filter((i: PtItem) => (i.status === 'Open' || i.status === 'ReOpened') && i.dateDeleted === undefined);
     res.json(filteredItems);
 });
 
 router.get('/closedItems', (req: Request, res: Response) => {
-    let filteredItems = currentPtItems.filter(i => i.status === 'Closed');
+    let filteredItems = currentPtItems.filter(i => i.status === 'Closed' && i.dateDeleted === undefined);
     res.json(filteredItems);
 });
 
@@ -210,7 +210,7 @@ router.post('/item', (req: Request, res: Response) => {
         if (req.body.item) {
             const newItem = <PtItem>req.body.item;
             newItem.id = getNextIntergerId(currentPtItems);
-            const newItems = [...currentPtItems, newItem];
+            const newItems = [newItem, ...currentPtItems];
             currentPtItems = newItems;
             res.json(newItem);
         } else {
@@ -244,6 +244,30 @@ router.put('/item/:id', (req: Request, res: Response) => {
         }
     }
 });
+
+router.delete('/item/:id', (req: Request, res: Response) => {
+    const itemId = parseInt(req.params.id);
+    const foundItem = currentPtItems.find(i => i.id === itemId && i.dateDeleted === undefined);
+    if (foundItem) {
+        const itemToDelete = Object.assign({}, foundItem, { dateDeleted: new Date() });
+        const updatedItems = currentPtItems.map(i => {
+            if (i.id === itemId) { return itemToDelete; } else { return i; }
+        });
+        currentPtItems = updatedItems;
+        res.json({
+            id: itemId,
+            result: true
+        });
+
+    } else {
+        res.status(404);
+        res.json({
+            id: itemId,
+            result: false
+        });
+    }
+});
+
 
 router.post('/task', (req: Request, res: Response) => {
     if (req.body) {
